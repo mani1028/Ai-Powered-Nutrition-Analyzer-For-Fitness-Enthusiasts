@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Food Analyzer - NutriLife</title>
+
+  <!-- Google Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: #ffffff;
+    }
+    .card {
+      border: none;
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(112, 109, 108, 0.975);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .form-control {
+      border-radius: 0.5rem;
+    }
+    .btn-primary {
+      background-color: #ef5f12;
+      border: none;
+    }
+    .btn-outline-primary {
+      border-color: #ff7700;
+      color: #ec711f;
+    }
+    .btn-outline-primary:hover {
+      background-color: #3b82f6;
+      color: #000000;
+    }
+    .preview-img {
+      max-width: 100%;
+      max-height: 200px;
+      display: none;
+      margin-top: 1rem;
+      border-radius: 0.5rem;
+    }
+    textarea {
+      resize: vertical;
+    }
+    /* Spinner inside button */
+    .spinner-border {
+      vertical-align: middle;
+      margin-right: 0.3rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-xxl position-relative p-0">
+            <nav class="navbar navbar-expand-lg navbar-white  px-4 px-lg-5 py-3 py-lg-0">
+                <a href="" class="navbar-brand p-0">
+                    <h1 class="m-0" style="color: rgb(255, 115, 0); font-weight: 900; font-size: 36px;">
+    <i class="fa fa-utensils me-3"></i>NutriLife</h1>
+
+
+                    <!-- <img src="img/logo.png" alt="Logo"> -->
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                    <span class="fa fa-bars"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <div class="navbar-nav ms-auto py-0 pe-4">
+                        <a href="/" class="nav-item nav-link">Home</a>
+                        <a href="/dashboard" class="nav-item nav-link">Dashboard
+
+                        </a>
+                        <a href="/team" class="nav-item nav-link">Our Team</a>
+                        <a href="/contact" class="nav-item nav-link">Contact</a>
+                    <a href="/image" class="nav-item nav-link active">Predict </a>
+                </div>
+                </div>
+            </div>
+        </div>
+  <div class="container py-5">
+    <div class="row g-4">
+      <!-- Sidebar Section -->
+      <div class="col-lg-4">
+        <!-- By Image -->
+        <div class="card">
+          <h5 class="mb-3">Analyze by Image</h5>
+          <form action="/predict" method="POST" enctype="multipart/form-data" id="imageForm" aria-label="Upload food image form">
+            <input type="file" name="file" id="imageInput" class="form-control mb-2" accept="image/*" required aria-describedby="imageInputHelp" aria-label="Select a food image to upload">
+            <img id="preview" class="preview-img" src="#" alt="Selected food image preview" />
+            <button type="submit" class="btn btn-primary w-100 mt-3" id="imageSubmitBtn" aria-live="polite">Analyze Image</button>
+          </form>
+        </div>
+
+        <!-- By Description -->
+        <div class="card">
+          <h5 class="mb-3">Analyze by Description</h5>
+          <form action="/predict" method="POST" id="descForm" aria-label="Analyze food description form">
+            <textarea class="form-control mb-3" name="description" rows="4" placeholder="e.g. 2 slices of toast with peanut butter" required aria-label="Enter food description"></textarea>
+            <button type="submit" class="btn btn-primary w-100" id="descSubmitBtn" aria-live="polite">Analyze Description</button>
+          </form>
+        </div>
+
+        <p class="text-center text-muted mt-3" style="font-size: 0.875rem;">
+          By using our service, you agree to our 
+          <a href="/terms-of-service" class="text-decoration-none text-primary">Terms</a> and 
+          <a href="/privacy-policy" class="text-decoration-none text-primary">Privacy Policy</a>.
+        </p>
+      </div>
+
+      <!-- Main Content Section -->
+      <div class="col-lg-8">
+        <div class="card">
+          <h4 class="mb-3">Analyze Your Food Instantly</h4>
+          <p class="text-muted">Upload a food image or describe your meal to receive a complete macro and nutrition breakdown.</p>
+
+          <!-- Flash Messages -->
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <div class="mt-3">
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endwith %}
+
+          {% if showcase1 %}
+          <hr>
+          <h5 class="mt-4">Prediction Result</h5>
+
+          {% if showcase_img %}
+          <img src="{{ url_for('static', filename='uploads/' + showcase_img) }}" alt="Uploaded food image" class="img-fluid rounded mb-3" style="max-height: 250px;">
+          {% endif %}
+
+          <p><strong>Food:</strong> {{ showcase1 }}</p>
+
+          {% if showcase %}
+          <h6 class="mt-4">Nutritional Information</h6>
+          <table class="table table-bordered mt-3">
+            <tr><th>Name</th><td>{{ showcase.name }}</td></tr>
+            <tr><th>Protein</th><td>{{ showcase.protein_g }}</td></tr>
+            <tr><th>Calories</th><td>{{ showcase.calories_kcal }}</td></tr>
+            <tr><th>Magnesium</th><td>{{  showcase.magnesium_mg or 'N/A' }}</td></tr>
+            <tr><th>Caffeine</th><td>{{ showcase.caffeine_mg or 'N/A' }}</td></tr>
+            <tr><th>Iron</th><td>{{ showcase.iron_mg or 'N/A'}} </td></tr> 
+            <tr><th>Total Fat (g)</th><td>{{ showcase.fat_total_g }}</td></tr>
+            <tr><th>Saturated Fat (g)</th><td>{{ showcase.fat_saturated_g }}</td></tr>
+            <tr><th>Sodium (mg)</th><td>{{ showcase.sodium_mg }}</td></tr>
+            <tr><th>Potassium (mg)</th><td>{{ showcase.potassium_mg }}</td></tr>
+            <tr><th>Cholesterol (mg)</th><td>{{ showcase.cholesterol_mg }}</td></tr>
+            <tr><th>Carbohydrates (g)</th><td>{{ showcase.carbohydrates_total_g }}</td></tr>
+            <tr><th>Fiber (g)</th><td>{{ showcase.fiber_g }}</td></tr>
+            <tr><th>Sugar (g)</th><td>{{ showcase.sugar_g }}</td></tr>
+          </table>
+          {% else %}
+          <p class="text-danger">No nutritional information available.</p>
+          {% endif %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS Preview Script -->
+  <script>
+    document.getElementById('imageInput').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const preview = document.getElementById('preview');
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Disable submit buttons and show spinner on submit
+    const imageForm = document.getElementById('imageForm');
+    const imageSubmitBtn = document.getElementById('imageSubmitBtn');
+    imageForm.addEventListener('submit', () => {
+      imageSubmitBtn.disabled = true;
+      imageSubmitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analyzing...';
+    });
+
+    const descForm = document.getElementById('descForm');
+    const descSubmitBtn = document.getElementById('descSubmitBtn');
+    descForm.addEventListener('submit', () => {
+      descSubmitBtn.disabled = true;
+      descSubmitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analyzing...';
+    });
+  </script>
+
+  <!-- Bootstrap JS Bundle (for dismissible alerts) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

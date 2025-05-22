@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard - Nutrition App</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+    }
+
+    .dashboard-container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(145, 151, 158, 0.2);
+    }
+
+    .profile-header {
+      margin-bottom: 30px;
+    }
+
+    .profile-header h2 {
+      font-weight: 700;
+    }
+
+    .summary-card {
+      background: #f7f0e9;
+      border-left: 6px solid #d66a17;
+      padding: 20px;
+      border-radius: 6px;
+      margin-top: 15px;
+    }
+
+    .profile-info dt {
+      font-weight: 600;
+    }
+
+    .card {
+      border: none;
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(112, 109, 108, 0.975);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-control {
+      border-radius: 0.5rem;
+    }
+
+    .btn-primary {
+      background-color: #ef5f12;
+      border: none;
+    }
+
+    .btn-outline-primary {
+      border-color: #ff7700;
+      color: #ec711f;
+    }
+
+    .btn-outline-primary:hover {
+      background-color: #3b82f6;
+      color: #000000;
+    }
+
+    .preview-img {
+      max-width: 100%;
+      max-height: 200px;
+      display: none;
+      margin-top: 1rem;
+      border-radius: 0.5rem;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    .spinner-border {
+      vertical-align: middle;
+      margin-right: 0.3rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-xxl position-relative p-0">
+    <nav class="navbar navbar-expand-lg navbar-white px-4 px-lg-5 py-3 py-lg-0">
+      <a href="/" class="navbar-brand p-0">
+        <h1 class="m-0" style="color: rgb(255, 115, 0); font-weight: 900; font-size: 36px;">
+          <i class="fa fa-utensils me-3"></i>NutriLife
+        </h1>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+        <span class="fa fa-bars"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarCollapse">
+        <div class="navbar-nav ms-auto py-0 pe-4">
+          <a href="/" class="nav-item nav-link">Home</a>
+          <a href="/dashboard" class="nav-item nav-link active">Dashboard</a>
+          <a href="/team" class="nav-item nav-link">Our Team</a>
+          <a href="/contact" class="nav-item nav-link">Contact</a>
+          <a href="/image" class="nav-item nav-link">Predict</a>
+          <a href="#" class="btn btn-primary py-2 px-4" onclick="logoutUser()">Logout</a>
+        </div>
+      </div>
+    </nav>
+  </div>
+
+  <div class="dashboard-container">
+    <div class="profile-header text-center">
+      <h2>Welcome back, {{ profile.name }}!</h2>
+      <p class="text-muted">Email authenticated via Firebase</p>
+    </div>
+
+    <section class="profile-section mb-4">
+      <h4>Your Profile Details</h4>
+      <dl class="row profile-info">
+        <dt class="col-sm-3">Name:</dt>
+        <dd class="col-sm-9">{{ profile.name }}</dd>
+
+        <dt class="col-sm-3">Age:</dt>
+        <dd class="col-sm-9">{{ profile.age }} years</dd>
+
+        <dt class="col-sm-3">Weight:</dt>
+        <dd class="col-sm-9">{{ profile.weight }} kg</dd>
+
+        <dt class="col-sm-3">Height:</dt>
+        <dd class="col-sm-9">{{ profile.height }} cm</dd>
+
+        <dt class="col-sm-3">Gender:</dt>
+        <dd class="col-sm-9">{{ profile.gender }}</dd>
+
+        <dt class="col-sm-3">Activity Level:</dt>
+        <dd class="col-sm-9">{{ profile.activity }}</dd>
+      </dl>
+      <!--<button id="updateProfile" class="btn btn-outline-primary mt-3">Edit Profile</button> -->
+      <a href="/profile" class="btn btn-outline-primary mt-3">Edit Profile</a>  <!-- ✅ RIGHT -->
+
+    </section>
+
+    <section class="nutrition-summary">
+      <h4>Daily Nutritional Summary</h4>
+      <div class="summary-card">
+        <p><strong>Calories needed:</strong> {{ nutrition.calories }} kcal/day</p>
+        <p><strong>Protein:</strong> {{ nutrition.protein }} g/day</p>
+        <p><strong>Carbohydrates:</strong> {{ nutrition.carbs }} g/day</p>
+        <p><strong>Fats:</strong> {{ nutrition.fats }} g/day</p>
+      </div>
+
+      <div class="summary-card mt-3">
+        <h5>Calorie Balance Today</h5>
+        {% if caloric_balance > 0 %}
+        <span class="badge bg-danger">Surplus of {{ caloric_balance }} kcal</span>
+        {% elif caloric_balance < 0 %}
+        <span class="badge bg-success">Deficit of {{ -caloric_balance }} kcal</span>
+        {% else %}
+        <span class="badge bg-primary">Perfect balance!</span>
+        {% endif %}
+      </div>
+    </section>
+
+    <section class="tips-section mt-4">
+      <h4>Personalized Tips for You</h4>
+      <ul class="list-group">
+        {% for tip in tips %}
+        <li class="list-group-item">{{ tip }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAvsBqNBRqNsbdYV6FjZ97aBPuZiBs4gpw",
+    authDomain: "nutrion-84ccc.firebaseapp.com",
+    projectId: "nutrion-84ccc",
+    storageBucket: "nutrion-84ccc.appspot.com",
+    messagingSenderId: "51114680452",
+    appId: "1:51114680452:web:84bbca4ae7fa0d6bf0e2d1"
+  };
+  firebase.initializeApp(firebaseConfig);
+</script>
+<script>
+document.getElementById("updateProfile").addEventListener("click", () => {
+  console.log("Clicked Edit Profile");
+  window.location.href = "/profile";
+});
+</script>
+
+<!-- Your custom script (must be loaded AFTER Firebase init) -->
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

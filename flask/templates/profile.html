@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>User Profile - NutriLife</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f8f0;
+      padding: 2rem;
+    }
+
+    .container {
+      background: white;
+      max-width: 600px;
+      margin: auto;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+    }
+
+    input,
+    select,
+    button {
+      width: 100%;
+      padding: 0.7rem;
+      margin-top: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      margin-top: 2rem;
+      cursor: pointer;
+    }
+
+    .result {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+      padding: 1rem;
+      border-radius: 5px;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>{{ 'Update' if profile else 'Set Up' }} Your Profile</h2>
+    
+    <form method="POST" action="/profile">
+      <label for="name">Name:</label>
+      <input type="text" name="name" required value="{{ profile.name if profile else '' }}" />
+      <label for="age">Age:</label>
+      <input type="number" name="age" required value="{{ profile.age if profile else '' }}" />
+
+      <label for="weight">Weight (kg):</label>
+      <input type="number" name="weight" step="0.1" required value="{{ profile.weight if profile else '' }}" />
+
+      <label for="height">Height (cm):</label>
+      <input type="number" name="height" step="0.1" required value="{{ profile.height if profile else '' }}" />
+
+      <label for="gender">Gender:</label>
+      <select name="gender" required>
+        <option value="male" {% if profile and profile.gender == 'male' %}selected{% endif %}>Male</option>
+        <option value="female" {% if profile and profile.gender == 'female' %}selected{% endif %}>Female</option>
+      </select>
+
+      <label for="activity">Activity Level:</label>
+      <select name="activity" required>
+        <option value="sedentary" {% if profile and profile.activity == 'sedentary' %}selected{% endif %}>Sedentary (Little to no exercise)</option>
+        <option value="lightly active" {% if profile and profile.activity == 'lightly active' %}selected{% endif %}>Lightly Active (Light exercise)</option>
+        <option value="moderately active" {% if profile and profile.activity == 'moderately active' %}selected{% endif %}>Moderately Active (Regular exercise)</option>
+        <option value="very active" {% if profile and profile.activity == 'very active' %}selected{% endif %}>Very Active</option>
+        <option value="extra active" {% if profile and profile.activity == 'extra active' %}selected{% endif %}>Extra Active</option>
+      </select>
+
+      <label for="goal">Fitness Goal:</label>
+      <select name="goal" required>
+        <option value="maintain" {% if profile and profile.goal == 'maintain' %}selected{% endif %}>Maintain Weight</option>
+        <option value="lose" {% if profile and profile.goal == 'lose' %}selected{% endif %}>Lose Weight</option>
+        <option value="gain" {% if profile and profile.goal == 'gain' %}selected{% endif %}>Gain Weight</option>
+      </select>
+
+      <button type="submit">{{ 'Update' if profile else 'Save' }} Profile</button>
+    </form>
+
+    {% if profile %}
+    <div class="result">
+      <h3>Your Estimated Daily Caloric Need:</h3>
+      <p><strong>{{ profile.calories }} kcal</strong></p>
+      <p>Based on your profile, this is the estimated number of calories you need daily to {{ profile.goal }} weight.</p>
+    </div>
+    {% endif %}
+  </div>
+</body>
+</html>
